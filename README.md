@@ -6,7 +6,7 @@ Flatworld is a simulation game using the Pygame library that creates a grassland
 
 It explores the AI concepts of Fuzzy logic, Subsumption, The genetic algorithm, Perceptron, Sigmoids and more.  We use a neural network to train the creatures using genes which are the weights  for a neural network.  Perceptrons  represent what the creatures see and how they move.
 
-This work is based on the code samples in the book `Artificial Intelligence for Developers1` by Richard Urwin.
+This work is based on the code samples in the book `Artificial Intelligence for Developers` by Richard Urwin.
 
 ## Running the Neural Flatworld
 
