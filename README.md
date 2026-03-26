@@ -1,6 +1,8 @@
 # Flatworld
 
-Flatworld is a simulation game using the Pygame library that creates a grasslands biome with carnivores and herbivors who learn how to survive and compete for resources.
+Flatworld is a simulation game using the Pygame library that creates a grasslands biome with carnivores and herbivores who learn how to survive and compete for resources.
+
+![flatworld](Images/flatworld.png)
 
 It explores the AI concepts of Fuzzy logic, Subsumption, The genetic algorithm, Perceptron, Sigmoids and more.  We use a neural network to train the creatures using genes which are the weights  for a neural network.  Perceptrons  represent what the creatures see and how they move.
 
@@ -13,7 +15,6 @@ The `NeuralFlatworld.py` script requires TensorFlow, which needs Python 3.12 or 
 ```sh
 venv/bin/python NeuralFlatworld.py
 ```
-
 
 ## Useful Terms
 
