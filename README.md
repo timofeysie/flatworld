@@ -43,7 +43,7 @@ The virtual environment (`venv`) includes:
 
 ### Running the Script
 
-**Option 1: Activate the virtual environment first (recommended)**
+#### Option 1: Activate the virtual environment first
 
 ```bash
 cd "/Users/timo/repos/python/AI for Devs book"
@@ -51,7 +51,7 @@ source venv/bin/activate
 python NeuralFlatworld.py
 ```
 
-**Option 2: Run directly with the virtual environment's Python**
+#### Option 2: Run directly with the virtual environment's Python
 
 ```bash
 cd "/Users/timo/repos/python/AI for Devs book"
