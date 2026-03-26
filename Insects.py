@@ -118,6 +118,8 @@ class Insect(Organism):
 
     def draw(self, position):
         if enableDraw:
+            from Flatworld import draw_triangle_shadow
+            
             v = self.direction if self.direction.length() > 0.1 \
                                         else pygame.Vector2([1,0])
 
@@ -133,9 +135,67 @@ class Insect(Organism):
             p1 += position
             p2 += position
             p3 += position
-            pygame.draw.polygon(getField(),
-                                           self.color,
-                                           [p1,p2,p3])
+            
+            triangle_points = [(p1.x, p1.y), (p2.x, p2.y), (p3.x, p3.y)]
+            
+            # Draw triangular shadow first (offset down-right)
+            draw_triangle_shadow(getField(), triangle_points, shadow_offset=(5, 6))
+            
+            # Draw extruded 3D triangular prism
+            if isinstance(self.color, str):
+                base_color = pygame.Color(self.color)
+            else:
+                base_color = pygame.Color(self.color)
+            
+            light_color = pygame.Color(
+                min(255, base_color.r + 50),
+                min(255, base_color.g + 50),
+                min(255, base_color.b + 50)
+            )
+            dark_color = pygame.Color(
+                max(0, base_color.r - 80),
+                max(0, base_color.g - 80),
+                max(0, base_color.b - 80)
+            )
+            side_color = pygame.Color(
+                max(0, base_color.r - 60),
+                max(0, base_color.g - 60),
+                max(0, base_color.b - 60)
+            )
+            
+            shadow_offset = (5, 6)
+            
+            # Draw three side faces of the prism (connecting top to bottom)
+            bottom_p1 = (p1.x + shadow_offset[0], p1.y + shadow_offset[1])
+            bottom_p2 = (p2.x + shadow_offset[0], p2.y + shadow_offset[1])
+            bottom_p3 = (p3.x + shadow_offset[0], p3.y + shadow_offset[1])
+            
+            # Side face 1 (p1 to p2)
+            pygame.draw.polygon(getField(), side_color, [
+                (p1.x, p1.y), (p2.x, p2.y), bottom_p2, bottom_p1
+            ])
+            
+            # Side face 2 (p2 to p3)
+            pygame.draw.polygon(getField(), side_color, [
+                (p2.x, p2.y), (p3.x, p3.y), bottom_p3, bottom_p2
+            ])
+            
+            # Side face 3 (p3 to p1) - might be less visible
+            pygame.draw.polygon(getField(), dark_color, [
+                (p3.x, p3.y), (p1.x, p1.y), bottom_p1, bottom_p3
+            ])
+            
+            # Draw top triangle (brighter, main visible face) - drawn last so it's on top
+            # Add highlight on upper-left vertex
+            highlight_points = [
+                (p1.x - 2, p1.y - 2),  # Slightly offset for highlight
+                (p2.x, p2.y),
+                (p3.x, p3.y)
+            ]
+            pygame.draw.polygon(getField(), base_color, [(p1.x, p1.y), (p2.x, p2.y), (p3.x, p3.y)])
+            
+            # Add edge lines for definition
+            pygame.draw.polygon(getField(), dark_color, [(p1.x, p1.y), (p2.x, p2.y), (p3.x, p3.y)], 1)
 
     def moveTo(self, newPosition):
         if newPosition.x < 0:
@@ -163,6 +223,26 @@ class Insect(Organism):
     def tick(self, secondsSinceLastFrame):
         self.direction = self.moveDirection()
         if self.direction.length() > 0.1:
+            # Add particle trail for insects
+            from Flatworld import add_particle
+            import random
+            if not hasattr(self, 'last_position'):
+                self.last_position = pygame.Vector2(self.position)
+            
+            movement = (self.position - self.last_position).length()
+            if movement > 1:
+                trail_color = pygame.Color(self.color)
+                trail_color.a = 80
+                for _ in range(1):
+                    offset = pygame.Vector2(
+                        random.uniform(-2, 2),
+                        random.uniform(-2, 2)
+                    )
+                    dir_normalized = self.direction.normalize() if self.direction.length() > 0.1 else pygame.Vector2()
+                    velocity = -dir_normalized * 40 + offset * 15
+                    add_particle(self.position + offset, velocity, trail_color,
+                               lifetime=0.25, size=2)
+            
             self.direction.scale_to_length(self.speed *
                                                 secondsSinceLastFrame)
 
@@ -170,6 +250,8 @@ class Insect(Organism):
         blocker = self.moveTo(newPosition)
         if blocker != None:
             self.hit(blocker)
+        
+        self.last_position = pygame.Vector2(self.position)
         super().tick(secondsSinceLastFrame)
 
     def hit(self, blocker):
@@ -326,22 +408,36 @@ def OneRepeat(clock, chromosomes, generation):
         nests.append(spawn)
         i += 1
 
+    # Default to slower mode (drawing enabled)
+    enableDraw = True
+    
     for tickCounter in range(5000):
-        if tickCounter % frameDecimation == 0:
-            enableDraw = True
-
-        if enableDraw:
-            clock.tick(60)
-            field.fill('white')
-            displayText('Generation: ' + str(generation) +
-                            ' Frame: ' + str(tickCounter),
-                            getField( ), pygame.Vector2(0,0))
-
         secondsSinceLastFrame  = 1/60.0
+        
+        # Update particles
+        from Flatworld import update_particles, draw_particles, draw_background
+        update_particles(secondsSinceLastFrame)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return None
+
+        keys = pygame.key.get_pressed()
+        # Holding spacebar = faster mode (no drawing), default = slower mode (with drawing)
+        if keys[pygame.K_SPACE]:
+            enableDraw = False
+        else:
+            enableDraw = True
+
+        if enableDraw:
+            clock.tick(15)  # Quarter speed: 15 FPS instead of 60 FPS
+            # Draw background
+            draw_background(field, field.get_width(), field.get_height())
+            # Draw particles
+            draw_particles(field)
+            displayText('Generation: ' + str(generation) +
+                            ' Frame: ' + str(tickCounter),
+                            getField( ), pygame.Vector2(0,0))
 
         for organism in organisms:
             organism.tick(secondsSinceLastFrame)
@@ -351,10 +447,6 @@ def OneRepeat(clock, chromosomes, generation):
 
         if enableDraw:
             pygame.display.flip()
-
-        keys = pygame.key.get_pressed()
-        if not keys[pygame.K_SPACE]:
-            enableDraw = False
 
     return list(filter(lambda x: isinstance(x, BeeHive), nests))
 

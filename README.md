@@ -1,12 +1,10 @@
 # Flatworld
 
-## Useful Terms
+Flatworld is a simulation game using the Pygame library that creates a grasslands biome with carnivores and herbivors who learn how to survive and compete for resources.
 
-- [Fuzzy logic](https://en.wikipedia.org/wiki/Fuzzy_logic) - a form of many-valued logic in which the truth value of variables may be any real number between 0 and 1.
-- [Subsumption](https://en.wikipedia.org/wiki/Subsumption) - a reactive robotic architecture heavily associated with behavior-based robotics.
-- [The genetic algorithm](https://en.wikipedia.org/wiki/Genetic_algorithm) - a metaheuristic inspired by the process of natural selection that belongs to the larger class of evolutionary algorithms.
-- [Perceptron](https://en.wikipedia.org/wiki/Perceptron) - an algorithm for supervised learning of binary classifiers. 
-- [Sigmoid](https://en.wikipedia.org/wiki/Sigmoid_function) - a non-linear mathematical function whose graph has a characteristic S-shaped or sigmoid curve.
+It explores the AI concepts of Fuzzy logic, Subsumption, The genetic algorithm, Perceptron, Sigmoids and more.  We use a neural network to train the creatures using genes which are the weights  for a neural network.  Perceptrons  represent what the creatures see and how they move.
+
+This work is based on the code samples in the book `Artificial Intelligence for Developers1` by Richard Urwin.
 
 ## Running the Neural Flatworld
 
@@ -15,6 +13,15 @@ The `NeuralFlatworld.py` script requires TensorFlow, which needs Python 3.12 or 
 ```sh
 venv/bin/python NeuralFlatworld.py
 ```
+
+
+## Useful Terms
+
+- [Fuzzy logic](https://en.wikipedia.org/wiki/Fuzzy_logic) - a form of many-valued logic in which the truth value of variables may be any real number between 0 and 1.
+- [Subsumption](https://en.wikipedia.org/wiki/Subsumption) - a reactive robotic architecture heavily associated with behavior-based robotics.
+- [The genetic algorithm](https://en.wikipedia.org/wiki/Genetic_algorithm) - a metaheuristic inspired by the process of natural selection that belongs to the larger class of evolutionary algorithms.
+- [Perceptron](https://en.wikipedia.org/wiki/Perceptron) - an algorithm for supervised learning of binary classifiers. 
+- [Sigmoid](https://en.wikipedia.org/wiki/Sigmoid_function) - a non-linear mathematical function whose graph has a characteristic S-shaped or sigmoid curve.
 
 ## Architecture
 

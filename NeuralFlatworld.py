@@ -216,6 +216,18 @@ class Carnivore(Creature):
 
     def hit(self, blocker):
         if type(blocker) == Herbivore:
+            # Add attack effect particles
+            from Flatworld import add_particle
+            import random
+            for _ in range(8):
+                offset = pygame.Vector2(
+                    random.uniform(-8, 8),
+                    random.uniform(-8, 8)
+                )
+                velocity = offset * 40
+                red_color = pygame.Color(200, 0, 0, 180)
+                add_particle(blocker.position + offset, velocity, red_color,
+                           lifetime=0.3, size=4)
             blocker.getBitten()
             self.score += 1
 
@@ -230,6 +242,18 @@ class Herbivore(Creature):
 
     def hit(self, blocker):
         if type(blocker) == Grass:
+            # Add eating effect particles
+            from Flatworld import add_particle
+            import random
+            for _ in range(5):
+                offset = pygame.Vector2(
+                    random.uniform(-5, 5),
+                    random.uniform(-5, 5)
+                )
+                velocity = offset * 30
+                green_color = pygame.Color(34, 139, 34, 150)
+                add_particle(blocker.position + offset, velocity, green_color,
+                           lifetime=0.4, size=3)
             blocker.getBitten()
             self.score += 0.5
 
@@ -283,23 +307,38 @@ def oneGeneration(clock,
 
     allOrganisms = list(organisms)
 
+    # Default to slower mode (drawing enabled)
+    enableDraw = True
+    
     for tickCounter in range(ticks):
-        if tickCounter % frameDecimation == 0:
-            enableDraw = True
-
         redPop = countCreatures(organisms, Carnivore)
         bluePop = countCreatures(organisms, Herbivore)
         if bluePop < 1:
             break
 
-        if enableDraw:
-            clock.tick(60)
-            field.fill('white')
         secondsSinceLastFrame  = 1/60.0
+        
+        # Update particles
+        from Flatworld import update_particles, draw_particles, draw_background
+        update_particles(secondsSinceLastFrame)
             
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return None, tickCounter
+
+        keys = pygame.key.get_pressed()
+        # Holding spacebar = faster mode (no drawing), default = slower mode (with drawing)
+        if keys[pygame.K_SPACE]:
+            enableDraw = False
+        else:
+            enableDraw = True
+
+        if enableDraw:
+            clock.tick(15)  # Quarter speed: 15 FPS instead of 60 FPS
+            # Draw background
+            draw_background(field, field.get_width(), field.get_height())
+            # Draw particles
+            draw_particles(field)
 
         for organism in organisms:
             organism.tick(secondsSinceLastFrame)
@@ -311,9 +350,6 @@ def oneGeneration(clock,
                             ', ' + str(bluePop),
                             getField(), pygame.Vector2(0,0))
             pygame.display.flip()
-
-        keys = pygame.key.get_pressed()
-        if not keys[pygame.K_SPACE]: enableDraw = False
 
     print('population dropped to', redPop, bluePop)
     return allOrganisms, tickCounter
